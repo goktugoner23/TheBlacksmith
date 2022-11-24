@@ -1,5 +1,11 @@
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.v1.Query;
+import twitter4j.v1.QueryResult;
+import twitter4j.v1.Status;
+import java.util.List;
 
 public class BotListeners extends ListenerAdapter {
 
@@ -20,6 +26,11 @@ public class BotListeners extends ListenerAdapter {
             } else {
                 event.getChannel().sendMessage(parseArmoryLink(message)).queue();
             }
+        }
+        //Twitter search
+        if(event.getMessage().getContentRaw().contains("!twitter")){
+            String searchQuery = parseTwitterSearchText(event.getMessage().getContentRaw());
+            searchTwitterUsername(searchQuery);
         }
     }
 
@@ -43,4 +54,36 @@ public class BotListeners extends ListenerAdapter {
         }
         return finalLink.toString();
     }
+
+    public String parseTwitterSearchText(String message){
+        //parse the string that contains !twitter and constructs a search query and returns it
+        String[] command = message.split(" ");
+        return command[1]; //returns the username to search on Twitter
+    }
+
+    public void searchTwitterUsername(String username){
+        if (username.length() < 1) {
+            System.out.println("java twitter4j.examples.search.SearchTweets [query]");
+            System.exit(-1);
+        }
+        //twitter4j.v1.SearchResource twitter = Twitter.getInstance().v1().search();
+        Twitter twitter = Twitter.newBuilder().oAuthConsumer("", "").oAuthAccessToken("", "").build();
+        try {
+            Query query = Query.of(username);
+            QueryResult result;
+            do {
+                result = twitter.v1().search().search(query);
+                List<Status> tweets = result.getTweets();
+                for (Status tweet : tweets) {
+                    System.out.println("@" + tweet.getUser().getScreenName() + " - " + tweet.getText());
+                }
+            } while ((query = result.nextQuery()) != null);
+            System.exit(0);
+        } catch (TwitterException te) {
+            te.printStackTrace();
+            System.out.println("Failed to search tweets: " + te.getMessage());
+            System.exit(-1);
+        }
+    }
+
 }

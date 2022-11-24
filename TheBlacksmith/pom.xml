@@ -21,6 +21,12 @@
             <artifactId>JDA</artifactId>
             <version>5.0.0-alpha.22</version>
         </dependency>
+        <!-- https://github.com/Twitter4J/Twitter4J -->
+        <dependency>
+            <groupId>org.twitter4j</groupId>
+            <artifactId>twitter4j-core</artifactId>
+            <version>4.1.2</version>
+        </dependency>
     </dependencies>
 
 </project>
