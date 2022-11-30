@@ -16,74 +16,39 @@ public class BotListeners extends ListenerAdapter {
         System.out.println("we received a message from " + event.getAuthor().getName() + ":" + event.getMessage().getContentDisplay());
         //standart message tryout
         if (event.getMessage().getContentRaw().equals("!ney")) {
-            event.getChannel().sendMessage("Babana gotten mi gireyim?").queue();
+            event.getChannel().sendMessage("Babana gotten mi gireyim(yatay)?").queue();
         }
         //more complex message tryout
         if (event.getMessage().getContentRaw().contains("!armory")) { //message should be like !armory geliyorum dragonmaw eu
             String message = event.getMessage().getContentRaw();
-            if (parseArmoryLink(message).equals("error")) {
+            WowArmoryFunctions parsing = new WowArmoryFunctions(); //declare an armory class
+            if (parsing.parseArmoryLink(message).equals("error")) {
                 event.getChannel().sendMessage("Server type mismatch! Please write server type as \"eu\" or \"us\".").queue();
             } else {
-                event.getChannel().sendMessage(parseArmoryLink(message)).queue();
+                event.getChannel().sendMessage(parsing.parseArmoryLink(message)).queue();
             }
         }
         //Twitter search
-        if(event.getMessage().getContentRaw().contains("!twitter")){
-            String searchQuery = parseTwitterSearchText(event.getMessage().getContentRaw());
-            searchTwitterUsername(searchQuery);
+        if(event.getMessage().getContentRaw().contains("!twitterquery")){
+            TwitterFunctions twitterFunctions = new TwitterFunctions(); //declare a twitter class
+            String searchQuery = twitterFunctions.parseTwitterSearchText(event.getMessage().getContentRaw());
+            twitterFunctions.searchTweet(searchQuery);
         }
-    }
-
-    public String parseArmoryLink(String message) {
-        //parse the string that contains !armory and constructs a link and returns it
-        //so the armory code should look like e.g: https://worldofwarcraft.com/en-gb/character/eu/dragonmaw/geliyorum
-        String[] command = message.split(" ");
-        //command[0] is the !armory
-        String charName = command[1];
-        String serverName = command[2];
-        String serverType = command[3];
-        String[] parsedLink = {"https://worldofwarcraft.com/en-gb/character", serverType, serverName, charName};
-        if (!serverType.equals("eu") && !serverType.equals("us")) {
-            return "error";
-        }
-        //construct the final link
-        StringBuilder finalLink = new StringBuilder();
-        for (String var : parsedLink) {
-            finalLink.append(var);
-            finalLink.append('/');
-        }
-        return finalLink.toString();
-    }
-
-    public String parseTwitterSearchText(String message){
-        //parse the string that contains !twitter and constructs a search query and returns it
-        String[] command = message.split(" ");
-        return command[1]; //returns the username to search on Twitter
-    }
-
-    public void searchTwitterUsername(String username){
-        if (username.length() < 1) {
-            System.out.println("java twitter4j.examples.search.SearchTweets [query]");
-            System.exit(-1);
-        }
-        //twitter4j.v1.SearchResource twitter = Twitter.getInstance().v1().search();
-        Twitter twitter = Twitter.newBuilder().oAuthConsumer("", "").oAuthAccessToken("", "").build();
-        try {
-            Query query = Query.of(username);
-            QueryResult result;
-            do {
-                result = twitter.v1().search().search(query);
-                List<Status> tweets = result.getTweets();
-                for (Status tweet : tweets) {
-                    System.out.println("@" + tweet.getUser().getScreenName() + " - " + tweet.getText());
+        if(event.getMessage().getContentRaw().contains("!twitteruser")){
+            TwitterFunctions twitterFunctions = new TwitterFunctions(); //declare a twitter class
+            String username = twitterFunctions.parseTwitterUsername(event.getMessage().getContentRaw());
+            if(username.equals("wrongUsrName")){
+                event.getChannel().sendMessage("Username doesn't exist.").queue();
+            }else{
+                try {
+                    event.getChannel().sendMessage(twitterFunctions.getUserTimeline(username)).queue();
+                } catch (TwitterException e) {
+                    throw new RuntimeException(e);
                 }
-            } while ((query = result.nextQuery()) != null);
-            System.exit(0);
-        } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to search tweets: " + te.getMessage());
-            System.exit(-1);
+            }
         }
     }
+
+
 
 }
