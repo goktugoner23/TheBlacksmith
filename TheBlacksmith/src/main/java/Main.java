@@ -8,7 +8,7 @@ import java.util.EnumSet;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException, InterruptedException {
-        String token = "";
+        String token = "DC TOKEN";
         EnumSet<GatewayIntent> intents = EnumSet.of(
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
@@ -17,6 +17,9 @@ public class Main extends ListenerAdapter {
                 GatewayIntent.DIRECT_MESSAGES,
                 GatewayIntent.MESSAGE_CONTENT
         );
-        JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.playing("World of Warcraft")).addEventListeners(new BotListeners()).build().awaitReady();
+        JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.watching("Seni")).addEventListeners(new BotListeners(), new BotListenerTwitter(), new BotListenerMongoDB(), new InteractionEventListener()).build().awaitReady();
+        jda.upsertCommand("twitterhelp","Twitter commands").setGuildOnly(true).queue();
+        //jda.upsertCommand("purge","clear 100 message").setGuildOnly(true).queue();
+        //https://www.youtube.com/watch?v=W3zMezRw38c
     }
 }
