@@ -1,3 +1,9 @@
+package com.goktugoner;
+
+import com.goktugoner.commands.Armory;
+import com.goktugoner.commands.CommandHelp;
+import com.goktugoner.commands.Mongo;
+import com.goktugoner.commands.Twitter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -17,8 +23,14 @@ public class Main extends ListenerAdapter {
                 GatewayIntent.DIRECT_MESSAGES,
                 GatewayIntent.MESSAGE_CONTENT
         );
-        JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.watching("Seni")).addEventListeners(new BotListeners(), new BotListenerTwitter(), new BotListenerMongoDB(), new InteractionEventListener()).build().awaitReady();
-        jda.upsertCommand("twitterhelp","Twitter commands").setGuildOnly(true).queue();
+        //commands
+        CommandManager manager = new CommandManager();
+        manager.add(new CommandHelp());
+        manager.add(new Twitter());
+        manager.add(new Mongo());
+        manager.add(new Armory());
+        JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.playing("with your life - /commandhelp")).addEventListeners(new BotListener(), manager).build().awaitReady();
+        jda.updateCommands().queue();
         //jda.upsertCommand("purge","clear 100 message").setGuildOnly(true).queue();
         //https://www.youtube.com/watch?v=W3zMezRw38c
     }

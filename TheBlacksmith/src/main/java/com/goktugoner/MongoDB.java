@@ -1,3 +1,5 @@
+package com.goktugoner;
+
 import com.mongodb.client.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -6,7 +8,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.bson.Document;
 import twitter4j.v1.Status;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,44 +19,46 @@ public class MongoDB {
         MongoClient client = MongoClients.create("mongodb+srv://goktugoner:goktugoner123@cluster0.h0zwq.mongodb.net/?retryWrites=true&w=majority");
         return client.getDatabase(dbname);
     }
-    public String addToDB(List<Status> tweetList, String username){
+    public String addToDB(List<Status> tweetList, String username, String dbname){
         //add a DB for tweets
-        MongoCollection<Document> col = connectToDB("TweetDB").getCollection(username); //add username as collection
+        MongoCollection<Document> col = connectToDB(dbname).getCollection(username); //add username as collection
         //add variables to the collection
-        if(col.countDocuments() == tweetList.size()){
+        if(collectionExists(dbname, username)){
             return "DBExists";
         }
-        List<Document> docList = new ArrayList<>();
-        for(Status status : tweetList){
-            //check the tweet in order to get the full text if it's retweeted and the user it's retweeted from
-            String statusText = status.getText();
-            String retweetedFrom = "";
-            if(status.isRetweet()) {
-                statusText = status.getRetweetedStatus().getText();
-                retweetedFrom = status.getRetweetedStatus().getUser().getScreenName();
+        if(tweetList.size() != 0){
+            List<Document> docList = new ArrayList<>();
+            for(Status status : tweetList){
+                //check the tweet in order to get the full text if it's retweeted and the user it's retweeted from
+                String statusText = status.getText();
+                String retweetedFrom = "";
+                if(status.isRetweet()) {
+                    statusText = status.getRetweetedStatus().getText();
+                    retweetedFrom = status.getRetweetedStatus().getUser().getScreenName();
+                }
+                docList.add(new Document("_id", tweetList.indexOf(status))
+                        .append("Username", status.getUser().getScreenName())
+                        .append("Tweet", statusText)
+                        .append("Retweeted From", retweetedFrom)
+                        .append("Date", status.getCreatedAt().getYear() + "/" + status.getCreatedAt().getMonthValue() + "/" + status.getCreatedAt().getDayOfMonth())
+                        .append("Time", status.getCreatedAt().getHour() + ":" + status.getCreatedAt().getMinute() + ":" + status.getCreatedAt().getSecond())
+                        .append("Fav Count", status.getFavoriteCount())
+                        .append("RT Count", status.getRetweetCount())
+                        .append("Replied To", status.getInReplyToScreenName())
+                        .append("Tweet URL", "https://twitter.com/" + status.getUser().getScreenName() + "/status/" + status.getId()));
             }
-            docList.add(new Document("_id", tweetList.indexOf(status))
-                    .append("Username", status.getUser().getScreenName())
-                    .append("Tweet", statusText)
-                    .append("Retweeted From", retweetedFrom)
-                    .append("Date", status.getCreatedAt().getYear() + "/" + status.getCreatedAt().getMonthValue() + "/" + status.getCreatedAt().getDayOfMonth())
-                    .append("Time", status.getCreatedAt().getHour() + ":" + status.getCreatedAt().getMinute() + ":" + status.getCreatedAt().getSecond())
-                    .append("Fav Count", status.getFavoriteCount())
-                    .append("RT Count", status.getRetweetCount())
-                    .append("Replied To", status.getInReplyToScreenName())
-                    .append("Tweet URL", "https://twitter.com/" + status.getUser().getScreenName() + "/status/" + status.getId()));
+            col.insertMany(docList);
+            return "DBSuccess";
         }
-        col.insertMany(docList);
-        return "DBSuccess";
+        return "DBFail";
     }
 
-    public static List<Document> exportDB(String username){
+    public static List<Document> exportDB(String username, String dbname){
         //check if the collections in tweetDB has the requested collection
-        boolean collectionExists = connectToDB("TweetDB").listCollectionNames().into(new ArrayList<>()).contains(username);
-        if(!collectionExists){
+        if(!collectionExists(dbname, username)){
             return null;
         }
-        MongoCollection<Document> col = connectToDB("TweetDB").getCollection(username);
+        MongoCollection<Document> col = connectToDB(dbname).getCollection(username);
         List<Document> docList = new LinkedList<>();
         for(Document doc : col.find()){
             docList.add(doc);
@@ -65,7 +68,7 @@ public class MongoDB {
 
     public static ReturnType createExcelfromDB(List<Document> list, String username){
         if(list == null){
-            return new ReturnType("User not found on database.", null, false);
+            return new ReturnType("Query not found on database.", null, false);
         }
         //create an Excel file to store the DB and then download it
         //Blank workbook
@@ -120,24 +123,24 @@ public class MongoDB {
         }
     }
 
-    public List<String> listCollectionsDB(){
-        List<String> userList = connectToDB("TweetDB").listCollectionNames().into(new ArrayList<>());
+    public List<String> listCollectionsDB(String dbname){
+        List<String> userList = connectToDB(dbname).listCollectionNames().into(new ArrayList<>());
         if(userList.isEmpty()){
            return null;
         }
         return userList;
     }
-    public String dropCollection(String username){
-        boolean collectionExists = connectToDB("TweetDB").listCollectionNames().into(new ArrayList<>()).contains(username);
-        if(!collectionExists){
-            return "User @" + username + " not found on database.";
+    public String dropCollection(String query, String dbname){
+        if(!collectionExists(dbname, query)){
+            return "Query: " + query + " not found on database.";
         }
-        MongoCollection<Document> col = connectToDB("TweetDB").getCollection(username);
+        MongoCollection<Document> col = connectToDB(dbname).getCollection(query);
+        System.out.println(col.listIndexes().into(new ArrayList<>()));
         col.drop();
-        return "User @" + username + " removed from database successfully.";
+        return "Query: " + query + " removed from database successfully.";
     }
-    public static void main(String[] args) {
-        String username = "goktug_oner";
-        createExcelfromDB(Objects.requireNonNull(exportDB(username)), username);
+
+    public static boolean collectionExists(String dbname, String query){
+        return connectToDB(dbname).listCollectionNames().into(new ArrayList<>()).contains(query);
     }
 }

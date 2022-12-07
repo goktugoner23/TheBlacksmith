@@ -1,3 +1,5 @@
+package com.goktugoner;
+
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -10,6 +12,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SeleniumWebDrive {
@@ -78,7 +81,49 @@ public class SeleniumWebDrive {
             exp.printStackTrace();
         }
     }
+    public static String navigateWowArmory(List<String> attributes){
+        WebDriver driver;
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--disable-gpu",
+                "--ignore-certificate-errors","--disable-extensions",
+                "--no-sandbox","--disable-dev-shm-usage");
+        driver = new ChromeDriver(); //when I turn on options it doesn't focus on upload dialog box so robot doesn't copy and paste good.
+        driver.get("https://worldofwarcraft.com/en-gb/");
+        wait(300);
+        driver.findElement(By.className("Navbar-icon")).click(); //click on search button
+        wait(200);
+        driver.findElement(By.className("BnetNav-searchInlineInput")).sendKeys(attributes.get(0)); //insert character name
+        wait(200);
+        driver.findElement(By.className("BnetNav-searchInlineInput")).submit();
+        wait(200);
+        //check if there are results
+        WebElement resultCheck = driver.findElement(By.className("font-bliz-light-medium-white"));
+        if(resultCheck.getText().equals("0 results for " + attributes.get(0))){ //no result found
+            return "no char";
+        }
+        //if there are results
+        WebElement allResults = driver.findElement(By.partialLinkText("View All"));
+        allResults.click(); //view all results
+        wait(200);
+        WebElement sortTable = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]")); //parent
+        List<WebElement> wowCharList = sortTable.findElements(By.xpath("//a[@class='Link SortTable-row']")); //children
+        //check according to servername, race, class, etc.
+        //CODE-HERE
+        wait(200);
+        String href = wowCharList.get(0).getAttribute("href");
+        System.out.println(wowCharList.get(0).getText());
+        System.out.println(driver.getCurrentUrl());
+        String websiteURL = driver.getCurrentUrl();
+        driver.quit();
+        return websiteURL;
+    }
     public static void main(String[] args) {
-
+        List<String> balora = new ArrayList<>();
+        balora.add("Balora");
+        long begin = System.currentTimeMillis();
+        navigateWowArmory(balora);
+        long end = System.currentTimeMillis();
+        System.out.println((end - begin)/1000);
     }
 }
