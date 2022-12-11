@@ -12,8 +12,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SeleniumWebDrive {
     public static String getWeTransferLink(File file){
@@ -81,7 +80,7 @@ public class SeleniumWebDrive {
             exp.printStackTrace();
         }
     }
-    public static String navigateWowArmory(List<String> attributes){
+    public static List<LinkedHashSet<String>> navigateWowArmory(String charName){
         WebDriver driver;
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
@@ -93,36 +92,57 @@ public class SeleniumWebDrive {
         wait(300);
         driver.findElement(By.className("Navbar-icon")).click(); //click on search button
         wait(200);
-        driver.findElement(By.className("BnetNav-searchInlineInput")).sendKeys(attributes.get(0)); //insert character name
+        driver.findElement(By.className("BnetNav-searchInlineInput")).sendKeys(charName); //insert character name
         wait(200);
         driver.findElement(By.className("BnetNav-searchInlineInput")).submit();
         wait(200);
         //check if there are results
         WebElement resultCheck = driver.findElement(By.className("font-bliz-light-medium-white"));
-        if(resultCheck.getText().equals("0 results for " + attributes.get(0))){ //no result found
-            return "no char";
+        if(resultCheck.getText().equals("0 results for " + charName)){ //no result found
+            return null;
         }
         //if there are results
         WebElement allResults = driver.findElement(By.partialLinkText("View All"));
         allResults.click(); //view all results
         wait(200);
-        WebElement sortTable = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]")); //parent
-        List<WebElement> wowCharList = sortTable.findElements(By.xpath("//a[@class='Link SortTable-row']")); //children
+        List<WebElement> charXpathList = driver.findElements(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a[@class='Link SortTable-row']"));//send to construct stringlist
         //check according to servername, race, class, etc.
-        //CODE-HERE
+        //constructcharlist();
+        List<LinkedHashSet<String>> charList = constructcharSet(charXpathList, charName);
         wait(200);
-        String href = wowCharList.get(0).getAttribute("href");
-        System.out.println(wowCharList.get(0).getText());
         System.out.println(driver.getCurrentUrl());
         String websiteURL = driver.getCurrentUrl();
         driver.quit();
-        return websiteURL;
+        return charList;
+    }
+
+    private static List<LinkedHashSet<String>> constructcharSet(List<WebElement> charXpathList, String charName){
+        List<LinkedHashSet<String>> charList = new ArrayList<>(); //construct a charlist - can't be null
+        for(int i = 1; i <= charXpathList.size(); i++){
+            LinkedHashSet<String> result = new LinkedHashSet<>();
+            result.add(charName);
+            result.add(charXpathList.get(i-1).findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a["+i+"]/div[2]")).getText()); //level
+            result.add(charXpathList.get(i-1).findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a["+i+"]/div[3]")).getText()); //race
+            result.add(charXpathList.get(i-1).findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a["+i+"]/div[4]")).getText()); //class
+            result.add(charXpathList.get(i-1).findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a["+i+"]/div[5]")).getText()); //faction
+            result.add(charXpathList.get(i-1).findElement(By.xpath("//*[@id=\"main\"]/div/div[2]/div/div[2]/div/div[5]/div[2]/a["+i+"]/div[6]")).getText()); //realm
+            result.add(charXpathList.get(i-1).getAttribute("href")); //url
+            charList.add(result);
+        }
+        return charList;
     }
     public static void main(String[] args) {
         List<String> balora = new ArrayList<>();
-        balora.add("Balora");
+        balora.add("Balora"); //name
+        balora.add("null"); //level
+        balora.add("null"); //race
+        balora.add("null"); //class
+        balora.add("null"); //faction
+        balora.add("null"); //realm
         long begin = System.currentTimeMillis();
-        navigateWowArmory(balora);
+        List<LinkedHashSet<String>> link =  navigateWowArmory("balora");
+        assert link != null;
+        System.out.println(Arrays.toString(link.get(1).toArray()));
         long end = System.currentTimeMillis();
         System.out.println((end - begin)/1000);
     }
