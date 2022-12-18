@@ -43,13 +43,17 @@ public class Armory implements ICommand {
         //get the options and write them to a string list to pass onto selenium //FUCK 5 IF-ELSE LOOP?? SHORTEN THIS BITCH
         //name - race - class - faction - realm
         event.deferReply().queue();
-        String charName = toUpper(Objects.requireNonNull(event.getOption("name")).getAsString());
+        String charName = correctAtt(Objects.requireNonNull(event.getOption("name")).getAsString());
         LinkedHashSet<String> charAttributes = new LinkedHashSet<>();
-        for(OptionMapping opt : event.getOptions()){
-            if(opt != null){
-                charAttributes.add(toUpper(opt.getAsString()));
+        if(event.getOptions().size() > 1){ //check if there are more options than only name
+            event.getOptions().remove(0); //remove the name variable
+            for(OptionMapping opt : event.getOptions()){
+                if(opt != null){
+                    charAttributes.add(correctAtt(opt.getAsString()));
+                }
             }
         }
+        //need to make every server name, race and class referenced from a dictionary
         List<LinkedHashSet<String>> fullCharList = SeleniumWebDrive.navigateWowArmory(charName); //full charlist from selenium - size 6
         if(fullCharList == null){ //empty condition
             event.getInteraction().getHook().editOriginal("Character not found.").complete();
@@ -80,7 +84,7 @@ public class Armory implements ICommand {
         //finalCharList is the filtered list so we'll return that as an embed list in discord
     }
 
-    private String toUpper(String name){
+    private String correctAtt(String name){
         String lower = name.toLowerCase();
         String s1 = lower.substring(0, 1).toUpperCase();
         return s1 + name.substring(1);
