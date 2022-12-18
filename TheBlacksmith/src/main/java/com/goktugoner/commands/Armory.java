@@ -7,9 +7,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -43,13 +40,17 @@ public class Armory implements ICommand {
         //get the options and write them to a string list to pass onto selenium //FUCK 5 IF-ELSE LOOP?? SHORTEN THIS BITCH
         //name - race - class - faction - realm
         event.deferReply().queue();
-        String charName = correctAtt(Objects.requireNonNull(event.getOption("name")).getAsString());
+        String charName = toUpper(Objects.requireNonNull(event.getOption("name")).getAsString());
         LinkedHashSet<String> charAttributes = new LinkedHashSet<>();
         if(event.getOptions().size() > 1){ //check if there are more options than only name
             event.getOptions().remove(0); //remove the name variable
             for(OptionMapping opt : event.getOptions()){
                 if(opt != null){
-                    charAttributes.add(correctAtt(opt.getAsString()));
+                    if(opt.getName().equals("realm")){
+                        charAttributes.add(correctAtt(opt.getAsString()));
+                    }else{
+                        charAttributes.add(toUpper(opt.getAsString()));
+                    }
                 }
             }
         }
@@ -84,9 +85,28 @@ public class Armory implements ICommand {
         //finalCharList is the filtered list so we'll return that as an embed list in discord
     }
 
-    private String correctAtt(String name){
+    private String toUpper(String name){
         String lower = name.toLowerCase();
         String s1 = lower.substring(0, 1).toUpperCase();
         return s1 + name.substring(1);
+    }
+
+    private String correctAtt(String name){ //correct race class servername
+        //DIDNT TEST THIS OUT YET
+        String lowerName = name.toLowerCase();
+        //server names with a space or apostrophe in them
+        List<String> servers = Arrays.asList("Aerie Peak", "Ahn'Qiraj", "Al'Akir", "Azjol-Nerub",
+                "Blade's Edge", "Bronze Dragonflight", "Burning Blade", "Burning Legion", "Burning Steppes",
+                "Chamber of Aspects", "Darkmoon Faire", "Defias Brotherhood", "Drak'thul", "Earthen Ring",
+                "Emerald Dream", "Grim Batol", "Kor'gall", "Kul Tiras", "Laughing Skull", "Lightning's Blade",
+                "Quel'thalas", "Scarshield Legion", "Shadow Moon", "Shattered Halls", "Shattered Hand",
+                "Steamwheedle Cartel", "Tarren Mill", "The Maelstrom", "The Sha'tar", "The Venture Co",
+                "Twilight's Hammer", "Twisting Nether", "Vek'nilash");
+        for(String s : servers){
+            if(s.contains(lowerName)){
+                return s;
+            }
+        }
+        return "realmnamemismatch";
     }
 }
