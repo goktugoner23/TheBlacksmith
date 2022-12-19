@@ -23,7 +23,7 @@ public class SeleniumWebDrive {
             options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
                     "--ignore-certificate-errors","--disable-extensions",
                     "--no-sandbox","--disable-dev-shm-usage");
-            driver = new ChromeDriver(); //when I turn on options it doesn't focus on upload dialog box so robot doesn't copy paste good.
+            driver = new ChromeDriver(options); //when I turn on options it doesn't focus on upload dialog box so robot doesn't copy paste good.
             driver.get("https://wetransfer.com");
             wait(1000);
             List<WebElement> list = driver.findElements(By.className("button"));
@@ -83,11 +83,11 @@ public class SeleniumWebDrive {
     public static List<LinkedHashSet<String>> navigateWowArmory(String charName){
         WebDriver driver;
         WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless", "--disable-gpu",
-                "--ignore-certificate-errors","--disable-extensions",
+        ChromeOptions options = new ChromeOptions();//new window resolution for little monitors to force wowarmory to open on mobile version for easy traversal
+        options.addArguments("--disable-gpu", "--window-size=600,800",
+                "--ignore-certificate-errors","--disable-extensions", //--headless
                 "--no-sandbox","--disable-dev-shm-usage");
-        driver = new ChromeDriver(); //when I turn on options it doesn't focus on upload dialog box so robot doesn't copy and paste good.
+        driver = new ChromeDriver(options); //when I turn on options it doesn't focus on upload dialog box so robot doesn't copy and paste good.
         driver.get("https://worldofwarcraft.com/en-gb/");
         wait(300);
         driver.findElement(By.className("Navbar-icon")).click(); //click on search button

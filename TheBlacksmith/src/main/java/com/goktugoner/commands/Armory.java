@@ -92,7 +92,7 @@ public class Armory implements ICommand {
     }
 
     private String correctAtt(String name){ //correct race class servername
-        //DIDNT TEST THIS OUT YET
+        //DIDNT TEST THIS OUT YET - TESTED CONTAINS() DOESNT WORK
         String lowerName = name.toLowerCase();
         //server names with a space or apostrophe in them
         List<String> servers = Arrays.asList("Aerie Peak", "Ahn'Qiraj", "Al'Akir", "Azjol-Nerub",
