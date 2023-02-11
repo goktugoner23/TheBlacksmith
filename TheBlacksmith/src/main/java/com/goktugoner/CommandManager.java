@@ -22,7 +22,6 @@ public class CommandManager extends ListenerAdapter {
                 }
             }
     }
-
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         for(ICommand command : commandList){
@@ -32,7 +31,6 @@ public class CommandManager extends ListenerAdapter {
             }
         }
     }
-
     public void add(ICommand command){
         commandList.add(command);
     }
