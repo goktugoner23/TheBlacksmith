@@ -9,3 +9,4 @@ Th Blacksmith Discord Bot executes several tasks below with the help of other te
  5. Music play from YouTube. (not added yet)
  6. some other stuff I may add as ideas comes to mind
  7. Twitter real time monitoring(yet to be added)
+ 8. Added DALL-E support for image generation
