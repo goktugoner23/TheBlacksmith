@@ -17,7 +17,8 @@ public class Main extends ListenerAdapter {
                 GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.DIRECT_MESSAGES,
-                GatewayIntent.MESSAGE_CONTENT
+                GatewayIntent.MESSAGE_CONTENT,
+                GatewayIntent.SCHEDULED_EVENTS
         );
         //commands
         CommandManager manager = new CommandManager();
@@ -26,6 +27,7 @@ public class Main extends ListenerAdapter {
         manager.add(new Mongo());
         manager.add(new Armory());
         manager.add(new Dalle());
+        //manager.add(new ChatGPT());
         JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.playing("with your life - /commandhelp")).addEventListeners(new BotListener(), manager).build().awaitReady();
         jda.updateCommands().queue();
         //jda.upsertCommand("purge","clear 100 message").setGuildOnly(true).queue();
