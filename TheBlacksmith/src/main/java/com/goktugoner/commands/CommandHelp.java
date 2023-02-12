@@ -48,7 +48,9 @@ public class CommandHelp implements ICommand {
                 "\n" +
                 "/commandhelp mongo - MongoDB commands\n" +
                 "\n" +
-                "/armory <charactername> <race> <class> <faction> <realm> - Searches for character in WoW Armory and pastes URL. Only <charactername> is mandatory.";
+                "/armory <charactername> <race> <class> <faction> <realm> - Searches for character in WoW Armory and pastes URL. Only <charactername> is mandatory.\n" +
+                "\n" +
+                "/dalle <prompt> - Generate an image with DALL-E (OpenAI) based on the prompt the user give.";
     }
 
     public String twitterHelpText(){

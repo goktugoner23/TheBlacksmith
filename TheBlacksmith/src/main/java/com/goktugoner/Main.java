@@ -1,15 +1,11 @@
 package com.goktugoner;
 
-import com.goktugoner.commands.Armory;
-import com.goktugoner.commands.CommandHelp;
-import com.goktugoner.commands.Mongo;
-import com.goktugoner.commands.Twitter;
+import com.goktugoner.commands.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import javax.security.auth.login.LoginException;
 import java.util.EnumSet;
 
 public class Main extends ListenerAdapter {
@@ -29,6 +25,7 @@ public class Main extends ListenerAdapter {
         manager.add(new Twitter());
         manager.add(new Mongo());
         manager.add(new Armory());
+        manager.add(new Dalle());
         JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.playing("with your life - /commandhelp")).addEventListeners(new BotListener(), manager).build().awaitReady();
         jda.updateCommands().queue();
         //jda.upsertCommand("purge","clear 100 message").setGuildOnly(true).queue();
