@@ -11,7 +11,7 @@ public class ChatGPTGenerator {
             OpenAIConnections openai = new OpenAIConnections();
             HttpURLConnection connection = openai.connectChatGPT();
 
-            String payload = "{\"prompt\":\"" + prompt + "\",\"max_tokens\":100,\"temperature\":0.5}";
+            String payload = "{\"prompt\":\"" + prompt + "\",\"max_tokens\":1000,\"temperature\":0.3}";
             connection.getOutputStream().write(payload.getBytes());
 
             Scanner scanner = new Scanner(new InputStreamReader(connection.getInputStream()));
@@ -19,7 +19,7 @@ public class ChatGPTGenerator {
 
             int startIndex = response.indexOf("\"text\":") + 8;
             int endIndex = response.indexOf("\",", startIndex);
-
+            System.out.println(response);
             return response.substring(startIndex, endIndex);
         } catch (IOException e) {
             e.printStackTrace();

@@ -10,7 +10,7 @@ import java.util.EnumSet;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws InterruptedException {
-        String token = "";
+        String token = "MTAzODAyNzY0OTIyMzc3MDIxMg.GmISuQ.K_9ClX-Ea90w-qgTqfKdFLsVcxn6PagkB_nkMI";
         EnumSet<GatewayIntent> intents = EnumSet.of(
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
@@ -27,7 +27,7 @@ public class Main extends ListenerAdapter {
         manager.add(new Mongo());
         manager.add(new Armory());
         manager.add(new Dalle());
-        //manager.add(new ChatGPT());
+        manager.add(new ChatGPT());
         JDA jda = JDABuilder.createDefault(token, intents).setActivity(Activity.playing("with your life - /commandhelp")).addEventListeners(new BotListener(), manager).build().awaitReady();
         jda.updateCommands().queue();
         //jda.upsertCommand("purge","clear 100 message").setGuildOnly(true).queue();

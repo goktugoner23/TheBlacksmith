@@ -7,7 +7,7 @@ import java.net.URL;
 public class OpenAIConnections {
     public final String DALLE_API_URL = "https://api.openai.com/v1/images/generations";
     public final String DALLE_API_KEY = "";
-    public final String CHATGPT_API_URL = "https://api.openai.com/v1/engines/text-davinci/jobs";
+    public final String CHATGPT_API_URL = "https://api.openai.com/v1/completions";
     public final String CHATGPT_API_KEY = "";
 
     public HttpURLConnection connectDallE() throws IOException {

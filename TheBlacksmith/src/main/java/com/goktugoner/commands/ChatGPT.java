@@ -12,12 +12,12 @@ import java.util.Objects;
 public class ChatGPT implements ICommand {
     @Override
     public String getName() {
-        return "chatgpt";
+        return "gpt";
     }
 
     @Override
     public String getDescription() {
-        return "chatgpt conversations";
+        return "ask chatgpt";
     }
 
     @Override

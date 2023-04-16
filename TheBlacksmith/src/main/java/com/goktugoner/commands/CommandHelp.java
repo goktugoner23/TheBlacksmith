@@ -50,7 +50,9 @@ public class CommandHelp implements ICommand {
                 "\n" +
                 "/armory <charactername> <race> <class> <faction> <realm> - Searches for character in WoW Armory and pastes URL. Only <charactername> is mandatory.\n" +
                 "\n" +
-                "/dalle <prompt> - Generate an image with DALL-E (OpenAI) based on the prompt the user give.";
+                "/dalle <prompt> - Generate an image with DALL-E (OpenAI) based on the prompt the user give.\n" +
+                "\n" +
+                "/gpt <prompt> - Ask ChatGPT (You need to have a paid plan)";
     }
 
     public String twitterHelpText(){
